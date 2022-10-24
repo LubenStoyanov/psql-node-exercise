@@ -27,10 +27,19 @@ app.use(helmet());
 
 app.get("/", async (req, res) => {
   try {
-    const usersAll = await db.select("*").from("users");
+    const usersAll = await db("users");
     res.json(usersAll);
   } catch (err) {
     console.error("Failed to get all users...", err);
+  }
+});
+
+app.get("/:id", async (req, res) => {
+  try {
+    const user = await db("users").where({ id: req.params.id });
+    res.json(user);
+  } catch (err) {
+    console.error("Failed to get user...", err);
   }
 });
 
