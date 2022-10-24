@@ -46,20 +46,30 @@ app.get("/:id", async (req, res) => {
 });
 
 app.post("/", async (req, res) => {
-  // console.log(req.body);
   try {
-    const userNew = await db("users")
-      .insert({
-        first_name: req.body.first_name,
-        last_name: req.body.last_name,
-        age: req.body.age,
-        active: req.body.active,
-      })
-      .onConflict()
-      .ignore();
+    const userNew = await db("users").insert({
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      age: req.body.age,
+      active: req.body.active,
+    });
+
+    console.log("Successfully created user...");
     res.json(userNew);
   } catch (err) {
     console.error("Failed to create user...", err);
+  }
+});
+
+app.put("/:id", async (req, res) => {
+  try {
+    const update = await db("users").where({ id: req.params.id }).update({
+      active: !active,
+    });
+    console.log("Successfully updated active status...");
+    res.json(update);
+  } catch (err) {
+    console.error("Failed to update user", err);
   }
 });
 
