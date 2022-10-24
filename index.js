@@ -63,8 +63,9 @@ app.post("/", async (req, res) => {
 
 app.put("/:id", async (req, res) => {
   try {
-    const update = await db("users").where({ id: req.params.id }).update({
-      active: !active,
+    const user = await db("users").where("id", req.params.id);
+    const update = await db("users").where("id", req.params.id).update({
+      active: !user[0].active,
     });
     console.log("Successfully updated active status...");
     res.json(update);
@@ -73,13 +74,30 @@ app.put("/:id", async (req, res) => {
   }
 });
 
+app.delete("/:id", async (req, res) => {
+  try {
+    await db("users").where({ id: req.params.id }).del();
+    console.log("Successfully deleted user...");
+    res.send();
+  } catch (err) {
+    console.error("Failed to delete user...", err);
+  }
+});
 (async () => {
-  const res = await axios.post("http://localhost:8080/", {
+  await axios.post("http://localhost:8080/", {
     first_name: "Luben",
     last_name: "Stoyanov",
     age: 34,
     active: true,
   });
+})();
+
+(async () => {
+  await axios.put("http://localhost:8080/21");
+})();
+
+(async () => {
+  await axios.delete("http://localhost:8080/51");
 })();
 
 app.listen(port, console.log(`Server running on http://localhost:${port}...`));
