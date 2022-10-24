@@ -4,6 +4,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import knex from "knex";
+import axios from "axios";
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -24,6 +25,7 @@ const db = knex({
 
 app.use(cors());
 app.use(helmet());
+app.use(express.json());
 
 app.get("/", async (req, res) => {
   try {
@@ -42,5 +44,32 @@ app.get("/:id", async (req, res) => {
     console.error("Failed to get user...", err);
   }
 });
+
+app.post("/", async (req, res) => {
+  // console.log(req.body);
+  try {
+    const userNew = await db("users")
+      .insert({
+        first_name: req.body.first_name,
+        last_name: req.body.last_name,
+        age: req.body.age,
+        active: req.body.active,
+      })
+      .onConflict()
+      .ignore();
+    res.json(userNew);
+  } catch (err) {
+    console.error("Failed to create user...", err);
+  }
+});
+
+(async () => {
+  const res = await axios.post("http://localhost:8080/", {
+    first_name: "Luben",
+    last_name: "Stoyanov",
+    age: 34,
+    active: true,
+  });
+})();
 
 app.listen(port, console.log(`Server running on http://localhost:${port}...`));
