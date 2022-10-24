@@ -26,8 +26,12 @@ app.use(cors());
 app.use(helmet());
 
 app.get("/", async (req, res) => {
-  const usersAll = await db.select("*").from("users");
-  res.json(usersAll);
+  try {
+    const usersAll = await db.select("*").from("users");
+    res.json(usersAll);
+  } catch (err) {
+    console.error("Failed to get all users...", err);
+  }
 });
 
 app.listen(port, console.log(`Server running on http://localhost:${port}...`));
