@@ -46,6 +46,12 @@ app.get("/:id", async (req, res) => {
 });
 
 app.post("/", async (req, res) => {
+  const { rows } = await db.raw(
+    "select count(1) from users where first_name=?",
+    [req.body.first_name]
+  );
+  if (Number(rows[0].count) !== 0) return;
+
   try {
     const userNew = await db("users").insert({
       first_name: req.body.first_name,
@@ -53,7 +59,6 @@ app.post("/", async (req, res) => {
       age: req.body.age,
       active: req.body.active,
     });
-
     console.log("Successfully created user...");
     res.json(userNew);
   } catch (err) {
@@ -78,11 +83,12 @@ app.delete("/:id", async (req, res) => {
   try {
     await db("users").where({ id: req.params.id }).del();
     console.log("Successfully deleted user...");
-    res.send();
+    res.send("Successfully deleted user...");
   } catch (err) {
     console.error("Failed to delete user...", err);
   }
 });
+
 (async () => {
   await axios.post("http://localhost:8080/", {
     first_name: "Luben",
@@ -93,11 +99,11 @@ app.delete("/:id", async (req, res) => {
 })();
 
 (async () => {
-  await axios.put("http://localhost:8080/21");
+  await axios.put("http://localhost:8080/1");
 })();
 
 (async () => {
-  await axios.delete("http://localhost:8080/51");
+  // await axios.delete("http://localhost:8080/21");
 })();
 
 app.listen(port, console.log(`Server running on http://localhost:${port}...`));
